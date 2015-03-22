@@ -1,0 +1,207 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2011 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus II 64-Bit
+# Version 11.1 Build 259 01/25/2012 Service Pack 2 SJ Full Version
+# Date created = 22:59:44  June 04, 2013
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		top_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus II software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE6E22C8
+set_global_assignment -name TOP_LEVEL_ENTITY zx_wxeda
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "11.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:12:35  MARCH 26, 2012"
+set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name ENABLE_INIT_DONE_OUTPUT OFF
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS4
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED"
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name DEVICE_FILTER_PACKAGE TQFP
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name VECTOR_COMPARE_TRIGGER_MODE ALL_EDGE
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+#---------------CLK---------------------------
+
+set_location_assignment PIN_24 -to CLK
+
+#==================SDRAM=========================
+
+set_location_assignment PIN_77 -to SDRAM_A[0]
+set_location_assignment PIN_80 -to SDRAM_A[1]
+set_location_assignment PIN_83 -to SDRAM_A[2]
+set_location_assignment PIN_84 -to SDRAM_A[3]
+set_location_assignment PIN_72 -to SDRAM_A[4]
+set_location_assignment PIN_71 -to SDRAM_A[5]
+set_location_assignment PIN_70 -to SDRAM_A[6]
+set_location_assignment PIN_69 -to SDRAM_A[7]
+set_location_assignment PIN_68 -to SDRAM_A[8]
+set_location_assignment PIN_67 -to SDRAM_A[9]
+set_location_assignment PIN_76 -to SDRAM_A[10]
+set_location_assignment PIN_66 -to SDRAM_A[11]
+set_location_assignment PIN_65 -to SDRAM_A[12]
+set_location_assignment PIN_73 -to SDRAM_BA[0]
+set_location_assignment PIN_75 -to SDRAM_BA[1]
+set_location_assignment PIN_30 -to SDRAM_DQ[0]
+set_location_assignment PIN_28 -to SDRAM_DQ[1]
+set_location_assignment PIN_32 -to SDRAM_DQ[2]
+set_location_assignment PIN_31 -to SDRAM_DQ[3]
+set_location_assignment PIN_33 -to SDRAM_DQ[4]
+set_location_assignment PIN_34 -to SDRAM_DQ[5]
+set_location_assignment PIN_38 -to SDRAM_DQ[6]
+set_location_assignment PIN_39 -to SDRAM_DQ[7]
+set_location_assignment PIN_58 -to SDRAM_DQ[8]
+set_location_assignment PIN_55 -to SDRAM_DQ[9]
+set_location_assignment PIN_54 -to SDRAM_DQ[10]
+set_location_assignment PIN_53 -to SDRAM_DQ[11]
+set_location_assignment PIN_52 -to SDRAM_DQ[12]
+set_location_assignment PIN_51 -to SDRAM_DQ[13]
+set_location_assignment PIN_50 -to SDRAM_DQ[14]
+set_location_assignment PIN_49 -to SDRAM_DQ[15]
+set_location_assignment PIN_42 -to SDRAM_DQML
+set_location_assignment PIN_59 -to SDRAM_DQMH
+set_location_assignment PIN_43 -to SDRAM_WE_N
+set_location_assignment PIN_44 -to SDRAM_CAS_N
+set_location_assignment PIN_46 -to SDRAM_RAS_N
+set_location_assignment PIN_64 -to SDRAM_CKE
+set_location_assignment PIN_60 -to SDRAM_CLK
+set_location_assignment PIN_74 -to SDRAM_CS_N
+
+#=================FLASH=========================
+
+set_location_assignment PIN_23 -to DATA0 -comment "Flash 23 / EPCS 13"
+set_location_assignment PIN_11 -to NCSO -comment "Flash 11 / EPCS 8"
+set_location_assignment PIN_10 -to DCLK -comment "Flash 10 / EPCS 12"
+set_location_assignment PIN_7 -to ASDO -comment "Flash 7 / EPCS 6"
+set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to DCLK
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+#---------------KBD-----------------------------
+
+set_location_assignment PIN_99 -to PS2_CLK
+set_location_assignment PIN_98 -to PS2_DAT
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_CLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_DAT
+
+#---------------VGA-----------------------------
+
+set_location_assignment PIN_120 -to VGA_R[0]
+set_location_assignment PIN_121 -to VGA_R[1]
+set_location_assignment PIN_124 -to VGA_R[2]
+set_location_assignment PIN_125 -to VGA_R[3]
+set_location_assignment PIN_126 -to VGA_R[4]
+set_location_assignment PIN_111 -to VGA_G[0]
+set_location_assignment PIN_112 -to VGA_G[1]
+set_location_assignment PIN_113 -to VGA_G[2]
+set_location_assignment PIN_114 -to VGA_G[3]
+set_location_assignment PIN_115 -to VGA_G[4]
+set_location_assignment PIN_119 -to VGA_G[5]
+set_location_assignment PIN_103 -to VGA_B[0]
+set_location_assignment PIN_104 -to VGA_B[1]
+set_location_assignment PIN_105 -to VGA_B[2]
+set_location_assignment PIN_106 -to VGA_B[3]
+set_location_assignment PIN_110 -to VGA_B[4]
+set_location_assignment PIN_100 -to VGA_HS
+set_location_assignment PIN_101 -to VGA_VS
+
+#---------------SD CARD-------------------------
+
+set_location_assignment PIN_1 -to SD_CLK
+set_location_assignment PIN_2 -to SD_SI
+set_location_assignment PIN_141 -to SD_SO
+set_location_assignment PIN_3 -to SD_CS_N
+
+#---------------KEYS-------------------------
+
+set_location_assignment PIN_90 -to KEYS[0]
+set_location_assignment PIN_91 -to KEYS[1]
+set_location_assignment PIN_88 -to KEYS[2]
+set_location_assignment PIN_89 -to KEYS[3]
+
+#---------------SOUND-------------------------
+
+set_location_assignment PIN_85 -to BUZZER
+set_location_assignment PIN_133 -to DAC_OUT_L -comment "Speaker out L"
+set_location_assignment PIN_144 -to DAC_OUT_R -comment "Speaker out R"
+                 
+#---------------UART--------------------------
+set_location_assignment PIN_87 -to UART_TXD
+set_location_assignment PIN_86 -to UART_RXD
+
+#----------------FILEs----------------------------------------------------
+
+
+
+set_global_assignment -name VHDL_FILE ../rtl/video/rgb_builder.vhd
+set_global_assignment -name VHDL_FILE ../rtl/ram/ram.vhd
+set_global_assignment -name VHDL_FILE ../rtl/ram/altram1.vhd
+set_global_assignment -name VHDL_FILE ../rtl/zx_wxeda.vhd
+set_global_assignment -name VHDL_FILE ../rtl/uart/uart.vhd
+set_global_assignment -name VHDL_FILE ../rtl/vga/ram_scan.vhd
+set_global_assignment -name VHDL_FILE ../rtl/vga/scan_converter.vhd
+set_global_assignment -name VHDL_FILE ../rtl/ula/ula_top.vhd
+set_global_assignment -name VERILOG_FILE ../rtl/ula/ula.v
+set_global_assignment -name VHDL_FILE ../rtl/adc/tcl549c_top.vhd
+set_global_assignment -name VERILOG_FILE ../rtl/adc/tcl549c.v
+set_global_assignment -name VHDL_FILE ../rtl/sdram/sdram.vhd
+set_global_assignment -name VHDL_FILE ../rtl/pll/altpll1.vhd
+set_global_assignment -name VHDL_FILE ../rtl/keyboard/keyboard.vhd
+set_global_assignment -name VHDL_FILE ../rtl/keyboard/ps2_controller.vhd
+set_global_assignment -name VHDL_FILE ../rtl/keyboard/ps2_debouncer.vhd
+set_global_assignment -name VHDL_FILE ../rtl/keyboard/ps2_keyboard.vhd
+set_global_assignment -name VHDL_FILE ../rtl/keyboard/ps2_keyboard_mapper.vhd
+set_global_assignment -name VHDL_FILE ../rtl/keyboard/dac.vhd
+set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80s.vhd
+set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_Reg.vhd
+set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_Pack.vhd
+set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_MCode.vhd
+set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_ALU.vhd
+set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80.vhd
+set_global_assignment -name QIP_FILE ../rtl/rom/rom.qip
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
