@@ -178,6 +178,22 @@ set_location_assignment PIN_86 -to UART_RXD
 
 
 
+set_global_assignment -name VHDL_FILE ../rtl/dac/dac.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/zpuflex/rtl/zpupkg.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/zpuflex/rtl/zpu_core_flex.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_vga_master.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_uart.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_spi.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_ram2.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_ram.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_ps2.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_osd_overlay.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_osd.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_int.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_firmware_rom.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader_charrom_rom.vhd
+set_global_assignment -name VHDL_FILE ../rtl/loader/loader.vhd
 set_global_assignment -name VHDL_FILE ../rtl/video/rgb_builder.vhd
 set_global_assignment -name VHDL_FILE ../rtl/ram/ram.vhd
 set_global_assignment -name VHDL_FILE ../rtl/ram/altram1.vhd

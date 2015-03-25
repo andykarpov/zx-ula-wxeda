@@ -9,6 +9,12 @@ port (
 	clk 		: in std_logic; -- 28 MHz
 	clk_sdr		: in std_logic; -- 84 MHz
 
+	-- bank 0 ROM
+	a0 			: in std_logic_vector(13 downto 0);
+	cs0_n		: in std_logic;
+	oe0_n		: in std_logic;
+	dout0		: out std_logic_vector(7 downto 0);
+
 	-- bank 1 Video RAM
 	a1 			: in std_logic_vector(15 downto 0);
 	cs1_n		: in std_logic;
@@ -18,7 +24,7 @@ port (
 	dout1		: out std_logic_vector(7 downto 0);
 
 	-- bank 2 Upper RAM
-	a2			: in std_logic_vector(15 downto 0);
+	a2			: in std_logic_vector(24 downto 0);
 	cs2_n		: in std_logic;
 	oe2_n		: in std_logic;
 	we2_n		: in std_logic;
@@ -57,6 +63,15 @@ signal video_ram_oe : std_logic;
 signal video_ram_cs : std_logic;
 
 begin
+
+-- Test ROM
+--U_ROM: entity work.rom 
+--	port map(
+--		address		=> a0 (12 downto 0),
+--		clock 		=> clk,
+--		rden		=> not cs0_n,
+--		q 			=> dout0
+--	);
 
 -- Video memory
 U_VID: entity work.altram1
@@ -105,11 +120,20 @@ port map (
 	MA			=> MA,
 	DQ			=> DQ);
 
-sdr_ram_a <= "000000000" & a2;
-sdr_ram_rd <= not oe2_n and not cs2_n;
-sdr_ram_wr <= not we2_n and not cs2_n;
+-- share address / data / signals between rom and ram
+sdr_ram_a <= "10000100000" & a0 when cs0_n='0' else a2 when cs2_n='0' and (oe2_n='0' or we2_n='0') else (others => '0');
+sdr_ram_rd <= '1' when cs0_n='0' or (cs2_n='0' and oe2_n='0' and we2_n='1') else '0';
+sdr_ram_wr <= '1' when cs2_n='0' and we2_n='0' and cs0_n='1' else '0';
 sdr_ram_di <= din2;
-dout2 <= sdr_ram_do;
+dout0 <= sdr_ram_do;-- when cs0_n='0' and oe0_n='0' else "11111111";
+dout2 <= sdr_ram_do;-- when cs2_n='0' and oe2_n='0' else "11111111";
 sdr_ram_rfsh <= rfsh2;
+
+--sdr_ram_a <= a2;
+--sdr_ram_rd <= not oe2_n;
+--sdr_ram_wr <= not we2_n;
+--sdr_ram_di <= din2;
+--sdr_ram_rfsh <= rfsh2;
+--dout2 <= sdr_ram_do;
 
 end rtl;

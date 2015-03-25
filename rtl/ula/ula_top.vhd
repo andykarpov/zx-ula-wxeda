@@ -30,8 +30,8 @@ entity ula_top is
     vramwe : out std_logic; --
 
 	-- ULA I/O
-    ear : in std_logic; 	-- tape out
-    mic : out std_logic;	-- tape in
+    ear : in std_logic; 	-- tape in ?
+    mic : out std_logic;	-- tape out ?
     spk : out std_logic;	-- speaker
 	kbrows : out std_logic_vector(7 downto 0); -- Keyboard rows
     kbcolumns : in std_logic_vector(4 downto 0); -- Keyboard columns
