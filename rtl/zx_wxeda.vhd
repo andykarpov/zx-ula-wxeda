@@ -23,10 +23,16 @@ entity zx_wxeda is
 		SDRAM_CS_N     	: out std_logic := '0';
 
 		-- SPI FLASH (W25Q32)
-		DATA0			: in std_logic;
-		NCSO			: out std_logic;
-		DCLK			: out std_logic;
-		ASDO			: out std_logic;
+		--FLASH_SO		: in std_logic;
+		--FLASH_CLK		: out std_logic;
+		--FLASH_SI		: out std_logic;
+		--FLASH_CS_N		: out std_logic;
+
+		-- EPCS4
+		--EPCS_SO			: in std_logic;
+		--EPCS_CLK		: out std_logic;
+		--EPCS_SI			: out std_logic;
+		--EPCS_CS_N		: out std_logic;
 
 		-- VGA 5:6:5
 		VGA_R			: out std_logic_vector(4 downto 0);
@@ -47,6 +53,11 @@ entity zx_wxeda is
 		KEYS			: in std_logic_vector(3 downto 0);
 		BUZZER			: out std_logic;
 
+		-- ADC
+		ADC_CLK			: out std_logic;
+		ADC_DAT			: in std_logic;
+		ADC_CS_N		: out std_logic;
+
 		-- UART
 		UART_TXD		: inout std_logic;
 		UART_RXD		: inout std_logic;
@@ -61,20 +72,9 @@ end zx_wxeda;
 architecture zx_wxeda_arch of zx_wxeda is
 
 -- CLock / reset
-signal clk_84 		: 	std_logic;
-signal clk_28 		: 	std_logic;
-signal clk_14 		: 	std_logic;
-signal clk_7 		: 	std_logic;
 signal locked 		: 	std_logic;
 signal areset		:	std_logic;
 signal reset		: 	std_logic;
-
-signal ena_14mhz	: std_logic;
-signal ena_7mhz		: std_logic;
-signal ena_3_5mhz	: std_logic;
-signal ena_1_75mhz	: std_logic;
-signal ena_0_4375mhz	: std_logic;
-signal ena_cnt		: std_logic_vector(5 downto 0);
 
 signal clk_sdram	: std_logic;
 signal clk_ula		: std_logic;
@@ -82,6 +82,8 @@ signal clk_mem 		: std_logic;
 signal clk_audio 	: std_logic;
 signal clk_kbd 		: std_logic;
 signal clk_loader   : std_logic;
+signal clk_video 	: std_logic;
+signal clk_adc : std_logic;
 
 -- CPU signals
 signal cpu_reset_n 	: 	std_logic;
@@ -137,19 +139,6 @@ signal ula_mic		: 	std_logic;
 signal ula_spk		:	std_logic;
 signal ula_di_bus 	:  std_logic_vector(7 downto 0);
 signal ula_do_bus 	:  std_logic_vector(7 downto 0);
-signal ulaplus_data_cs : std_logic;
-signal ulaplus_addr_cs : std_logic;
-
--- Internal VGA			
-signal vga_red		:	std_logic_vector(1 downto 0);
-signal vga_green	:	std_logic_vector(1 downto 0);
-signal vga_blue		:	std_logic_vector(1 downto 0);
-signal vga_red_out	: std_logic_vector(2 downto 0);
-signal vga_green_out : std_logic_vector(2 downto 0);
-signal vga_blue_out  : std_logic_vector(2 downto 0);
-signal vga_hsync	:	std_logic;
-signal vga_vsync	:	std_logic;
-signal vga_sblank	:	std_logic;
 
 -- RAM controller
 signal sdr_a_bus	: std_logic_vector(24 downto 0);
@@ -185,25 +174,23 @@ signal host_vga_b		: std_logic_vector(7 downto 0);
 signal host_vga_hs 		: std_logic;
 signal host_vga_vs 		: std_logic;
 
--- Audio
-signal audio_l		: std_logic_vector(11 downto 0);
-signal audio_r		: std_logic_vector(11 downto 0);
-signal dac_s_l		: std_logic_vector(11 downto 0);
-signal dac_s_r		: std_logic_vector(11 downto 0);
-
 begin
 
--- Clocks
--- todo: incapsulate into clock unit (inc ena_*)
-U0: entity work.altpll1
-	port map (
-		areset		=> areset,
-		inclk0		=> CLK,		--  48.0 MHz
-		locked		=> locked,
-		c0			=> clk_84, 	-- 84 MHz
-		c1			=> clk_28, 	-- 28 MHz
-		c2			=> clk_14, 	-- 14 MHz
-		c3			=> clk_7	-- 7 MHz
+-- Clock generator
+U0: entity work.clock 
+	port map(
+		clk => CLK,
+		reset => areset,
+
+		locked => locked,
+		clk_ula => clk_ula,
+		clk_mem => clk_mem,
+		clk_sdram => clk_sdram,
+		clk_audio => clk_audio,
+		clk_kbd => clk_kbd,
+		clk_loader => clk_loader,
+		clk_video => clk_video,
+		clk_adc => clk_adc
 	);
 
 -- Zilog Z80A CPU
@@ -277,9 +264,8 @@ U2:	entity	work.ula_top
 	    vsync => ula_vsync
 	);
 
--- RAM
--- todo: rename to memory
-U3: entity work.ram
+-- Memory controller
+U3: entity work.memory
 	port map (
 
 		-- clock
@@ -321,7 +307,7 @@ U3: entity work.ram
 		DQ			=> SDRAM_DQ
 	);
 
--- Keyboard
+-- Keyboard controller
 U4: entity work.keyboard
 	port map(
 		CLK			=> clk_kbd,
@@ -335,53 +321,48 @@ U4: entity work.keyboard
 		PS2_DAT 	=> PS2_DAT
 	);
 
--- VGA converter
-U5 : entity work.scan_convert
-	generic map (
-		-- mark active area of input video
-		cstart      	=>  38,  -- composite sync start
-		clength     	=> 352,  -- composite sync length
-		-- output video timing
-		hA		=>  24,	-- h front porch
-		hB		=>  32,	-- h sync
-		hC		=>  40,	-- h back porch
-		hD		=> 352,	-- visible video
-	--	vA		=>   0,	-- v front porch (not used)
-		vB		=>   2,	-- v sync
-		vC		=>  10,	-- v back porch
-		vD		=> 284,	-- visible video
-		hpad		=>   0,	-- create H black border
-		vpad		=>   0	-- create V black border
-	)
-	port map (
-		I_VIDEO		=> (ula_i and ula_r) & ula_r & (ula_i and ula_g) & ula_g & (ula_i and ula_b) & ula_b,
-		I_HSYNC		=> ula_hsync,
-		I_VSYNC		=> ula_vsync,
-		O_VIDEO(5 downto 4)	=> vga_red,
-		O_VIDEO(3 downto 2)	=> vga_green,
-		O_VIDEO(1 downto 0)	=> vga_blue,
-		O_HSYNC		=> vga_hsync,
-		O_VSYNC		=> vga_vsync,
-		O_CMPBLK_N	=> vga_sblank,
-		CLK			=> ena_7mhz,
-		CLK_x2		=> ena_14mhz
-	);
+-- Video controller
+U5: entity work.video 
+	port map(
 
--- RGB converter
-U6 : entity work.rgb_builder
-	port map (
-		mode => '0',
-		clk => clk_28,
 		reset => reset,
-		r => vga_red(0) and vga_sblank,
-		g => vga_green(0) and vga_sblank,
-		b => vga_blue(0) and vga_sblank,
-		i => (vga_red(1) or vga_green(1) or vga_blue(1)) and vga_sblank,
-		red => vga_red_out,
-		green => vga_green_out,
-		blue => vga_blue_out,
-		rgbulaplus => "00000000"
-	);
+		clk_7 => clk_video,
+		clk_14 => clk_ula,
+		clk_28 => clk_mem,
+
+		ula_r => ula_r,
+		ula_g => ula_g,
+		ula_b => ula_b,
+		ula_i => ula_i,
+		ula_c => ula_csync,
+		ula_hs => ula_hsync,
+		ula_vs => ula_vsync,
+
+		vga_r => host_vga_r,
+		vga_g => host_vga_g,
+		vga_b => host_vga_b,
+		vga_hs => host_vga_hs,
+		vga_vs => host_vga_vs
+ 	);	
+
+U6: entity work.audio 
+	port map(
+		clk => clk_audio,
+		clk_adc => clk_adc,
+		reset => reset,
+
+		ula_spk => ula_spk,
+		ula_mic => ula_mic,
+		ula_ear => ula_ear,
+
+		ADC_DAT => ADC_DAT,
+		ADC_CLK => ADC_CLK,
+		ADC_CS_N => ADC_CS_N,
+
+		out_buzzer => BUZZER,
+		out_l => DAC_OUT_L,
+		out_r => DAC_OUT_R
+	); 
 
 -- Loader
 U7: entity work.loader 
@@ -441,49 +422,12 @@ port map (
 	busy 					=> loader_busy
 );
 
--- Delta-Sigma L
-U8: entity work.dac
-port map (
-    CLK   		=> clk_audio,
-    RESET 		=> areset,
-    DAC_DATA	=> dac_s_l,
-    DAC_OUT   	=> DAC_OUT_L);
-
--- Delta-Sigma R
-U9: entity work.dac
-port map (
-    CLK   		=> clk_audio,
-    RESET 		=> areset,
-    DAC_DATA	=> dac_s_r,
-    DAC_OUT   	=> DAC_OUT_R);
-
 
 -------------------------------------------------------------
 areset <= not KEYS(3);					-- global reset
 reset <= areset or loader_host_reset or not locked;			-- hot reset
 cpu_reset_n <= not(reset); -- and not(kb_f_bus(4));	-- CPU reset
 ula_mode <= '0';
-
--- clk divider
-process (clk_28)
-begin
-	if rising_edge(clk_28) then
-		ena_cnt <= ena_cnt + 1;
-	end if;
-end process;
-
-ena_14mhz 		<= ena_cnt(0);
-ena_7mhz 		<= ena_cnt(1) and ena_cnt(0);
-ena_3_5mhz 		<= ena_cnt(2) and ena_cnt(1) and ena_cnt(0);
-ena_1_75mhz 	<= ena_cnt(3) and ena_cnt(2) and ena_cnt(1) and ena_cnt(0);
-ena_0_4375mhz 	<= ena_cnt(5) and ena_cnt(4) and ena_cnt(3) and ena_cnt(2) and ena_cnt(1) and ena_cnt(0);
-
-clk_ula <= ena_14mhz;
-clk_mem <= clk_28;
-clk_sdram <= clk_84;
-clk_audio <= ena_14mhz;
-clk_kbd <= CLK;
-clk_loader <= ena_3_5mhz;
 
 -------------------------------------------------------------
 rom_cs 	<= '1' when (cpu_a_bus(15 downto 14) = "00" and cpu_mreq_n = '0' and cpu_rd_n = '0') else '0';
@@ -508,13 +452,6 @@ begin
 	end if;
 end process;
 
--- VGA output
-host_vga_r <= vga_red_out(2 downto 0) 	& "00000";
-host_vga_g <= vga_green_out(2 downto 0) & "00000";
-host_vga_b <= vga_blue_out(2 downto 0) 	& "00000";
-host_vga_hs <= vga_hsync;
-host_vga_vs <= vga_vsync;
-
 -- Host RAM
 host_mem_a_bus <= "0000000000" & cpu_a_bus(14 downto 0);
 host_mem_di_bus <= cpu_do_bus;
@@ -523,23 +460,12 @@ host_mem_wr <= '1' when ram_cs='1' and cpu_wr_n='0' else '0';
 host_mem_rfsh <= not cpu_rfsh_n;
 host_mem_cs <= ram_cs;
 
--- Audio
-audio_l <= 	  ("0000" & ula_spk & "0000000") + ("0000" & ula_mic & "0000000");  
-audio_r <=    ("0000" & ula_spk & "0000000") + ("0000" & ula_mic & "0000000");
--- Convert signed audio data (range 127 to -128) to simple unsigned value.
-dac_s_l <= std_logic_vector(unsigned(audio_l + 2048));
-dac_s_r <= std_logic_vector(unsigned(audio_r + 2048));
-
--- TODO: ADC (tape in)
-
 -- TODO
 UART_TXD <= 'Z';
 UART_RXD <= 'Z';
-BUZZER <= '1'; --ula_spk;
+
+-- Global levels
 SDRAM_CKE <= '1'; -- pullup
 SDRAM_CS_N <= '0'; -- pulldown
-DCLK <= '0';
-ASDO <= '0';
-NCSO <= '1';
 
 end zx_wxeda_arch;

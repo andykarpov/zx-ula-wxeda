@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
 use IEEE.numeric_std.all; 
 
-entity ram is
+entity memory is
 port (
 	-- clocks
 	clk 		: in std_logic; -- 28 MHz
@@ -44,9 +44,9 @@ port (
 	DQ			: inout std_logic_vector(15 downto 0)
 );
 
-end ram;
+end memory;
 
-architecture rtl of ram is
+architecture rtl of memory is
 
 signal sdr_ram_a 	: std_logic_vector(24 downto 0);
 signal sdr_ram_di 	: std_logic_vector(7 downto 0);
@@ -74,7 +74,7 @@ begin
 --	);
 
 -- Video memory
-U_VID: entity work.altram1
+U_VID: entity work.videoram
 port map (
 	clock_a		=> clk,
 	address_a	=> video_ram_a(13 downto 0), -- write

@@ -4,7 +4,7 @@
 -- MODULE: altsyncram 
 
 -- ============================================================
--- File Name: altram1.vhd
+-- File Name: videoram.vhd
 -- Megafunction Name(s):
 -- 			altsyncram
 --
@@ -39,7 +39,7 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
-ENTITY altram1 IS
+ENTITY videoram IS
 	PORT
 	(
 		address_a		: IN STD_LOGIC_VECTOR (13 DOWNTO 0);
@@ -53,10 +53,10 @@ ENTITY altram1 IS
 		q_a		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
 		q_b		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
 	);
-END altram1;
+END videoram;
 
 
-ARCHITECTURE SYN OF altram1 IS
+ARCHITECTURE SYN OF videoram IS
 
 	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (7 DOWNTO 0);
 	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -262,11 +262,11 @@ END SYN;
 -- Retrieval info: CONNECT: @wren_b 0 0 0 0 wren_b 0 0 0 0
 -- Retrieval info: CONNECT: q_a 0 0 8 0 @q_a 0 0 8 0
 -- Retrieval info: CONNECT: q_b 0 0 8 0 @q_b 0 0 8 0
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1.cmp FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1_inst.vhd FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1_waveforms.html FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL altram1_wave*.jpg FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram.cmp FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram_inst.vhd FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram_waveforms.html FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL videoram_wave*.jpg FALSE
 -- Retrieval info: LIB_FILE: altera_mf
