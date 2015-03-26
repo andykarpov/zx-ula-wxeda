@@ -192,12 +192,13 @@ set_location_assignment PIN_86 -to UART_RXD
 
 #----------------FILEs----------------------------------------------------
 
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+set_global_assignment -name VERILOG_FILE ../rtl/sound/AD_TLC549.v
 set_global_assignment -name VHDL_FILE ../rtl/zx_wxeda.vhd
 set_global_assignment -name VHDL_FILE ../rtl/clock/clock.vhd
 set_global_assignment -name VHDL_FILE ../rtl/clock/altpll1.vhd
 set_global_assignment -name VHDL_FILE ../rtl/sound/audio.vhd
 set_global_assignment -name VHDL_FILE ../rtl/sound/dac.vhd
-set_global_assignment -name VERILOG_FILE ../rtl/sound/tlc549c.v
 set_global_assignment -name VHDL_FILE ../rtl/loader/zpuflex/rtl/zpupkg.vhd
 set_global_assignment -name VHDL_FILE ../rtl/loader/zpuflex/rtl/zpu_core_flex.vhd
 set_global_assignment -name VHDL_FILE ../rtl/loader/loader_vga_master.vhd
@@ -235,5 +236,4 @@ set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_Pack.vhd
 set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_MCode.vhd
 set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80_ALU.vhd
 set_global_assignment -name VHDL_FILE ../rtl/cpu/t80/T80.vhd
-
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -26,13 +26,14 @@ end;
 
 architecture rtl of audio is
 
-component tlc549c is 
+component AD_TLC549 is 
 port (
-	clk24 : in std_logic;
-	adc_data_in : in std_logic;
-	adc_clk : out std_logic;
-	adc_cs_n : out std_logic;
-	adc_data : out std_logic_vector(7 downto 0)
+	sys_clk : in std_logic;
+	sys_rst_n : in std_logic;
+	AD_IO_DATA : in std_logic;
+	AD_IO_CLK : out std_logic;
+	AD_CS : out std_logic;
+	LED : out std_logic_vector(7 downto 0)
 );
 end component;
 
@@ -73,18 +74,26 @@ port map (
 --    DAC_DATA	=> dac_s_b,
 --    DAC_OUT   	=> out_buzzer);
 
-ADC: tlc549c
+ADC: AD_TLC549
 port map (
-	clk24 => clk_adc,
-	adc_data_in => ADC_DAT,
-	adc_clk => ADC_CLK,
-	adc_cs_n => ADC_CS_N,
-	adc_data => line8in
+	sys_clk => clk_adc,
+	sys_rst_n => not reset,
+	AD_IO_CLK => ADC_CLK,
+	AD_IO_DATA => ADC_DAT,
+	AD_CS => ADC_CS_N,
+	LED => line8in
 );
 
 -- Audio
-audio_l <= 	  ("0000" & ula_spk & "0000000") + ("0000" & ula_mic & "0000000");  
-audio_r <=    ("0000" & ula_spk & "0000000") + ("0000" & ula_mic & "0000000");
+audio_l <= 	  ("0000" & ula_spk & "0000000") + 
+				  ("0000" & ula_mic & "0000000") + 
+				  -- ("0000" & tapein  & "0000000");
+				  ("0000" & line8in);
+
+audio_r <=    ("0000" & ula_spk & "0000000") + 
+				  ("0000" & ula_mic & "0000000") + 
+				 -- ("0000" & tapein  & "0000000");
+ 				  ("0000" & line8in);
 --audio_b <=    ("0000" & ula_spk & "0000000") + ("0000" & ula_mic & "0000000");
 
 -- Convert signed audio data (range 127 to -128) to simple unsigned value.
@@ -97,7 +106,7 @@ out_buzzer <= '1';
 
 process (clk_adc)
 variable HYST: integer := 4; --4;
-variable LEVEL: integer := 64; -- 128
+variable LEVEL: integer := 128; -- 128
 begin
 	if rising_edge(clk_adc) then 
 	    if (unsigned(line8in) < LEVEL+HYST) then 
