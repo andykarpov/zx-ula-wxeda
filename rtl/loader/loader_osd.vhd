@@ -160,7 +160,7 @@ begin
 end process;
 
 
-process(clk,addr,data_in,hframe,vframe)
+process(clk,addr,data_in,hframe,vframe,reset_n)
 begin
 
 	if reset_n='0' then
@@ -215,7 +215,7 @@ vactive<='1' when ypixelpos(11 downto 7)="00000" else '0';
 -- Enable hactive for xpixel positions between 0 and 255, inclusive.
 hactive<='1' when xpixelpos(11 downto 8)="0000" else '0';
 
-process(clk)
+process(clk, osd_enable, hwindowactive, vwindowactive)
 begin
 
 	window<=osd_enable and hwindowactive and vwindowactive;

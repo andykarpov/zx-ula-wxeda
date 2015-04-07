@@ -42,7 +42,7 @@ begin
 	end if;
 end process;
 
-process (clock)
+process (clock, address1, address2)
 begin
 	q1 <= ram(to_integer(unsigned(address1)));
 	q2 <= ram(to_integer(unsigned(address2)));

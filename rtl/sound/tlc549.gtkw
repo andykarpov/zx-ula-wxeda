@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Thu Apr  2 19:15:55 2015
+[*]
+[dumpfile] "/Users/andy/Documents/Projects/Retrocomp/Speccy/zx-spectrum-wxeda/rtl/sound/tlc549.ghw"
+[dumpfile_mtime] "Thu Apr  2 18:55:33 2015"
+[dumpfile_size] 3623339
+[savefile] "/Users/andy/Documents/Projects/Retrocomp/Speccy/zx-spectrum-wxeda/rtl/sound/tlc549.gtkw"
+[timestart] 0
+[size] 1235 756
+[pos] -1 -1
+*-33.000000 940000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tlc549_testbench.
+[treeopen] top.tlc549_testbench.uut.
+[sst_width] 198
+[signals_width] 210
+[sst_expanded] 1
+[sst_vpaned_height] 221
+@28
+top.tlc549_testbench.clk24
+top.tlc549_testbench.reset
+top.tlc549_testbench.clk_out
+top.tlc549_testbench.adc_cs_n
+top.tlc549_testbench.adc_clk
+top.tlc549_testbench.adc_data
+@22
+#{top.tlc549_testbench.data_out[7:0]} top.tlc549_testbench.data_out[7] top.tlc549_testbench.data_out[6] top.tlc549_testbench.data_out[5] top.tlc549_testbench.data_out[4] top.tlc549_testbench.data_out[3] top.tlc549_testbench.data_out[2] top.tlc549_testbench.data_out[1] top.tlc549_testbench.data_out[0]
+@23
+#{top.tlc549_testbench.uut.ad_data_shift[7:0]} top.tlc549_testbench.uut.ad_data_shift[7] top.tlc549_testbench.uut.ad_data_shift[6] top.tlc549_testbench.uut.ad_data_shift[5] top.tlc549_testbench.uut.ad_data_shift[4] top.tlc549_testbench.uut.ad_data_shift[3] top.tlc549_testbench.uut.ad_data_shift[2] top.tlc549_testbench.uut.ad_data_shift[1] top.tlc549_testbench.uut.ad_data_shift[0]
+[pattern_trace] 1
+[pattern_trace] 0

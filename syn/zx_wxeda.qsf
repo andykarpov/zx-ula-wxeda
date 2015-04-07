@@ -193,7 +193,7 @@ set_location_assignment PIN_86 -to UART_RXD
 #----------------FILEs----------------------------------------------------
 
 set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
-set_global_assignment -name VERILOG_FILE ../rtl/sound/AD_TLC549.v
+set_global_assignment -name VHDL_FILE ../rtl/sound/tlc549.vhd
 set_global_assignment -name VHDL_FILE ../rtl/zx_wxeda.vhd
 set_global_assignment -name VHDL_FILE ../rtl/clock/clock.vhd
 set_global_assignment -name VHDL_FILE ../rtl/clock/altpll1.vhd

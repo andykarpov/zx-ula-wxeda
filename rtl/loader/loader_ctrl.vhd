@@ -375,7 +375,7 @@ end process;
 
 int_trigger<=int_req and int_enabled;	
 
-process(clk)
+process(clk, reset)
 begin
 	if reset='0' then
 		spi_cs<='1';

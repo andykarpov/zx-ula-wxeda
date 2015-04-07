@@ -140,6 +140,18 @@ signal ula_spk		:	std_logic;
 signal ula_di_bus 	:  std_logic_vector(7 downto 0);
 signal ula_do_bus 	:  std_logic_vector(7 downto 0);
 
+-- debug DAC out
+signal out_dac 		: std_logic_vector(7 downto 0);
+
+-- UART
+signal uart_di_bus 				: std_logic_vector(7 downto 0);
+signal uart_do_bus              : std_logic_vector(7 downto 0);
+signal uart_wr                  : std_logic;
+signal uart_rd                  : std_logic;
+signal uart_tx_busy             : std_logic;
+signal uart_rx_avail    : std_logic;
+signal uart_rx_error    : std_logic;
+
 -- RAM controller
 signal sdr_a_bus	: std_logic_vector(24 downto 0);
 signal sdr_di_bus	: std_logic_vector(7 downto 0);
@@ -347,9 +359,12 @@ U5: entity work.video
 
 U6: entity work.audio 
 	port map(
-		clk => clk_audio,
+		clk => CLK,
+		clk_dac => clk_audio,
 		clk_adc => clk_adc,
+		clk_ula => clk_ula,
 		reset => reset,
+        enable => not(loader_busy),
 
 		ula_spk => ula_spk,
 		ula_mic => ula_mic,
@@ -360,6 +375,7 @@ U6: entity work.audio
 		ADC_CS_N => ADC_CS_N,
 
 		out_buzzer => BUZZER,
+		out_dac => out_dac,
 		out_l => DAC_OUT_L,
 		out_r => DAC_OUT_R
 	); 
@@ -422,6 +438,24 @@ port map (
 	busy 					=> loader_busy
 );
 
+U16: entity work.uart
+generic map (
+        -- divisor = 28MHz / 115200 Baud = 243
+        divisor         => 243)
+port map (
+        CLK                     => clk_mem,
+        RESET           		=> reset,
+        WR                      => uart_wr,
+        RD                      => uart_rd,
+        DI                      => uart_di_bus,
+        DO                      => uart_do_bus,
+        TXBUSY          		=> uart_tx_busy,
+        RXAVAIL         		=> uart_rx_avail,
+        RXERROR         		=> uart_rx_error,
+        RXD                     => UART_TXD,
+        TXD                     => UART_RXD
+    );
+
 
 -------------------------------------------------------------
 areset <= not KEYS(3);					-- global reset
@@ -439,7 +473,7 @@ port255_cs <= '1' when (cpu_iorq_n = '0' and cpu_a_bus(7 downto 0) = "11111111" 
 ula_di_bus <= cpu_do_bus;
 rom_a_bus <= cpu_a_bus(13 downto 0);
 
-process (rom_cs, ula_cs, vram_cs, port255_cs, ram_cs)
+process (rom_cs, ula_cs, vram_cs, port255_cs, ram_cs, rom_do_bus, ula_do_bus, sdr_do_bus)
 begin
 	if (rom_cs = '1') then 
 		cpu_di_bus <= rom_do_bus;
@@ -452,6 +486,10 @@ begin
 	end if;
 end process;
 
+uart_wr <= '1';
+uart_rd <= '0';
+uart_di_bus <= out_dac;
+
 -- Host RAM
 host_mem_a_bus <= "0000000000" & cpu_a_bus(14 downto 0);
 host_mem_di_bus <= cpu_do_bus;
@@ -459,10 +497,6 @@ host_mem_rd <= '1' when ram_cs='1' and cpu_rd_n='0' else '0';
 host_mem_wr <= '1' when ram_cs='1' and cpu_wr_n='0' else '0';
 host_mem_rfsh <= not cpu_rfsh_n;
 host_mem_cs <= ram_cs;
-
--- TODO
-UART_TXD <= 'Z';
-UART_RXD <= 'Z';
 
 -- Global levels
 SDRAM_CKE <= '1'; -- pullup

@@ -35,7 +35,7 @@ ir <= i & r;
 ig <= i & g;
 ib <= i & b;
 
-process (clk, ir, mode)
+process (clk, ir, mode, rgbulaplus)
 begin 
 	if mode = '0' then
 		case (ir) is
