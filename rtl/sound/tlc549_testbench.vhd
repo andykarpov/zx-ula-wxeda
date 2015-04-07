@@ -29,6 +29,7 @@ architecture behavior of tlc549_testbench is
 
     signal clk_out : std_logic;
     signal data_out : std_logic_vector(7 downto 0);
+    signal cnt : std_logic := '0';
 
 begin
     uut: tlc549 
@@ -53,31 +54,15 @@ begin
         '0' after 20 ns when clk24 = '1';
 
     -- simulate adc_data
-    process (clk_out)
-    variable cnt : integer range 0 to 1000000 := 0;
-    variable cnt2 : integer range 0 to 2 := 0;
+    -- "11111111" / "00000000"
+    adc_data <= '0' when cnt='0' and adc_cs_n='0' and adc_clk='0' else 
+                '1' when cnt='1' and adc_cs_n='0' and adc_clk='0' else 
+                'Z';
+
+    process (adc_cs_n) 
     begin
-        if rising_edge(clk_out) then
-            cnt := cnt + 1;
-
-            if (cnt = 5 or cnt = 6 or cnt = 8 or cnt = 10 or cnt = 12 or cnt = 14 or cnt = 16 or cnt = 18 or cnt = 20) then
-                if (cnt2 = 0) then
-                    adc_data <= '1';
-                else 
-                    adc_data <= '0';
-                end if;
-            else 
-                adc_data <= 'Z';
-            end if;
-
-            if (cnt = 32) then
-                cnt := 0;
-                cnt2 := cnt2 + 1;
-                if (cnt2 = 2) then
-                    cnt2 := 0;
-                end if;
-            end if;
-
+        if falling_edge(adc_cs_n) then 
+            if (cnt = '1') then cnt <= '0'; else cnt <= '1'; end if;
         end if;
     end process;
 

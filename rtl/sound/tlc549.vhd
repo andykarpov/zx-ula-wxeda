@@ -17,7 +17,7 @@ USE ieee.numeric_std.ALL;
 entity tlc549 is 
 generic (
 	frequency : integer := 24; -- input freq (in MHz)
-	sample_cycles : integer := 32 -- total count of sampling cycles
+	sample_cycles : integer := 28 -- total count of 1mhz cycles to sample data
 );
 port (
 		clk 		: in std_logic;
@@ -41,10 +41,11 @@ signal adc_cs_n_out : std_logic := '1';
 
 begin 
 
--- 1 mhz clock from 24 mhz
+-- 2 mhz clock from input clock (default to 24 mhz)
 process (clk, reset)
 variable cnt : integer range 0 to frequency := 0;
 variable half : integer := frequency/2;
+variable full : integer := frequency;
 begin
 	
 	if (reset = '1') then 
@@ -63,7 +64,7 @@ begin
 		end if;
 
 		-- reset counter on frequency cycles
-		if (cnt = frequency) then
+		if (cnt = full) then
 			cnt := 0;
 		end if;
 
@@ -101,7 +102,7 @@ begin
 			adc_clk_out <= '1';
 		end if;
 
-		-- reset counter after 32 cycles 
+		-- reset counter 
 		if (cnt = sample_cycles) then
 			cnt := 0;
 		end if;
@@ -111,7 +112,6 @@ end process;
 
 -- sampling data from adc
 process (adc_clk_out, reset)
-variable cnt : integer range 0 to 12 := 0;
 begin
 	if (reset = '1') then
 		ad_data_shift <= "00000000";
