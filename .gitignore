@@ -20,3 +20,5 @@ syn/incremental_db
 syn/incrementa_db/*
 syn/zx_wxeda.map
 syn/zx_wxeda.qws
+*.ghw
+*.cf
