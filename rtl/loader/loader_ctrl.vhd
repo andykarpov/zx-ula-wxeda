@@ -9,7 +9,9 @@ entity loader_ctrl is
 	generic (
 		sysclk_frequency : integer := 840; -- Sysclk frequency * 10
 		mouse_fourbyte : in std_logic :='0';  -- Does the board initialise the mouse in 4-byte mode?
-		mouse_init : in std_logic :='0'  -- Does the mouse need initialising?
+		mouse_init : in std_logic :='0';  -- Does the mouse need initialising?
+		vsync_polarity : in std_logic := '1'; -- positive or negative vsync polarity
+		detect_vblank : in std_logic := '0' -- detect vblank or use external signal
 	);
 	port (
 		clk 			: in std_logic;
@@ -56,6 +58,7 @@ entity loader_ctrl is
 		mouse_idle : in std_logic;
 		
 		-- Video signals for OSD
+		vga_vblank : in std_logic; 
 		vga_hsync : in std_logic;
 		vga_vsync : in std_logic;
 		osd_window : out std_logic;
@@ -330,8 +333,10 @@ int_triggers<=(0=>kbdrecv,
 					2=>vblank,
 					others => '0');
 
--- Detect vblank
-vblank<='1' when vga_vsync='0' and vga_vsync_d='1' else '0';
+-- Detect vblank or use external vblank
+vblank <= '1' when detect_vblank='1' and vga_vsync=vsync_polarity and vga_vsync_d=not(vsync_polarity) else
+		  '1' when detect_vblank='0' and vga_vblank='1'
+			  else '0';
 process(clk,vga_vsync)
 begin
 	if rising_edge(clk) then

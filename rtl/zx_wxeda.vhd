@@ -76,14 +76,21 @@ signal locked 		: 	std_logic;
 signal areset		:	std_logic;
 signal reset		: 	std_logic;
 
-signal clk_sdram	: std_logic;
-signal clk_ula		: std_logic;
-signal clk_mem 		: std_logic;
-signal clk_audio 	: std_logic;
-signal clk_kbd 		: std_logic;
-signal clk_loader   : std_logic;
-signal clk_video 	: std_logic;
-signal clk_adc : std_logic;
+signal clk_84 		: 	std_logic;
+signal clk_56 		: 	std_logic;
+
+signal clk_28 		: 	std_logic;
+signal clk_14 		:	std_logic;
+signal clk_7 		:	std_logic;
+signal clk_3_5		: 	std_logic;
+signal clk_1_75		: 	std_logic;
+signal clk_0_4375 	: 	std_logic;
+
+signal ena_14 		: 	std_logic;
+signal ena_7 		:	std_logic;
+signal ena_3_5 		:	std_logic;
+signal ena_1_75 	:	std_logic;
+signal ena_0_4375 	:	std_logic;
 
 -- CPU signals
 signal cpu_reset_n 	: 	std_logic;
@@ -147,6 +154,8 @@ signal ulaplusdata_cs : std_logic;
 
 -- debug DAC out
 signal out_dac 		: std_logic_vector(7 downto 0);
+signal ay_cs : std_logic;
+signal ay_do_bus : std_logic_vector(7 downto 0);
 
 -- UART
 signal uart_di_bus 				: std_logic_vector(7 downto 0);
@@ -168,6 +177,7 @@ signal sdr_cs 		: std_logic;
 
 -- Loader
 signal loader_host_reset : std_logic;
+signal loader_host_reset_oneshot : std_logic;
 signal loader_busy 	: std_logic;
 
 -- Host SD card
@@ -193,28 +203,40 @@ signal host_vga_vs 		: std_logic;
 
 begin
 
+-- Clocks
+U_PLL: entity work.altpll1
+	port map (
+		inclk0		=> CLK,		--  48.0 MHz
+		locked		=> locked,
+		c0			=> clk_84, 	-- 84 MHz
+		c1			=> clk_56   -- 56 MHz
+	);
+
 -- Clock generator
 U0: entity work.clock 
 	port map(
-		clk => CLK,
+		clk_56 => clk_56,
 		reset => areset,
 
-		locked => locked,
-		clk_ula => clk_ula,
-		clk_mem => clk_mem,
-		clk_sdram => clk_sdram,
-		clk_audio => clk_audio,
-		clk_kbd => clk_kbd,
-		clk_loader => clk_loader,
-		clk_video => clk_video,
-		clk_adc => clk_adc
+		clk_28 => clk_28,
+		clk_14 => clk_14,
+		clk_7 => clk_7,
+		clk_3_5 => clk_3_5,
+		clk_1_75 => clk_1_75,
+		clk_0_4375 => clk_0_4375,
+
+		ena_14 => ena_14,
+		ena_7 => ena_7,
+		ena_3_5 => ena_3_5,
+		ena_1_75 => ena_1_75,
+		ena_0_4375 => ena_0_4375
 	);
 
 -- Zilog Z80A CPU
 U1: entity work.T80a
 	port map(
 		RESET_n		=> cpu_reset_n,
-		CLK_n		=> cpu_clk,
+		CLK_n		=> cpu_clk, -- from ULA
 		WAIT_n		=> '1',
 		INT_n		=> cpu_int_n,
 		NMI_n		=> '1',
@@ -229,22 +251,13 @@ U1: entity work.T80a
 		BUSAK_n		=> open,
 		A			=> cpu_a_bus,
         D           => cpu_d_bus
---		DI			=> cpu_di_bus,
---		DO			=> cpu_do_bus,
-
-		--SavePC      => open,
-		--SaveINT     => open,
-		--RestorePC   => (others => '1'),
-		--RestoreINT  => (others => '1'),
-		--RestorePC_n => '1'
 	);
 
 -- ULA
 U2:	entity	work.ula_top
 	port map (
 		
-		--mode =>	ula_mode,
-		clk14 => 	clk_ula,
+		clk14 => 	clk_14,
 		reset => 	reset,
 	    a => 		cpu_a_bus,
 	    din => 		ula_di_bus,
@@ -288,8 +301,8 @@ U3: entity work.memory
 	port map (
 
 		-- clock
-		clk 		=> clk_mem,
-		clk_sdr		=> clk_sdram,
+		clk 		=> clk_28,
+		clk_sdr		=> clk_84,
 
 		-- bank 0 ROM
 		a0			=> rom_a_bus,
@@ -329,7 +342,7 @@ U3: entity work.memory
 -- Keyboard controller
 U4: entity work.keyboard
 	port map(
-		CLK			=> clk_kbd,
+		CLK			=> clk_14,
 		RESET		=> areset,
 		ROWS  		=> cpu_a_bus(15 downto 8),
 		-- ula makes a strange reassignment of the rows address bits
@@ -345,9 +358,9 @@ U5: entity work.video
 	port map(
 
 		reset => reset,
-		clk_7 => clk_video,
-		clk_14 => clk_ula,
-		clk_28 => clk_mem,
+		clk_7 => clk_7,
+		clk_14 => clk_14,
+		clk_28 => clk_28,
 
 		ula_r => ula_r,
 		ula_g => ula_g,
@@ -369,16 +382,22 @@ U5: entity work.video
 
 U6: entity work.audio 
 	port map(
-		clk => CLK,
-		clk_dac => clk_audio,
-		clk_adc => clk_adc,
-		clk_ula => clk_ula,
+		clk_dac => clk_84,
+		clk_adc => clk_28,
+		clk_ula => clk_14,
+		clk_psg => ena_1_75,
 		reset => reset,
         enable => not(loader_busy),
 
 		ula_spk => ula_spk,
 		ula_mic => ula_mic,
 		ula_ear => ula_ear,
+
+		AY_BDIR => not cpu_wr_n,
+		AY_BC => cpu_a_bus(14),
+		AY_CS => ay_cs,
+		AY_DI => cpu_do_bus,
+		AY_DO => ay_do_bus,
 
 		ADC_DAT => ADC_DAT,
 		ADC_CLK => ADC_CLK,
@@ -396,11 +415,11 @@ generic map (
 	mem_a_offset 		=> 17301504, 	-- 82.ROM start point (0x1080000) 
 	loader_filesize 	=> 16384,  		-- 82.ROM filesize (bytes)
 	use_osd				=> true, 		-- show OSD
-	clk_frequency 		=> 840 			-- loader clk frequency * 10
+	clk_frequency 		=> 280 			-- loader clk frequency * 10
 )
 port map (
-	clk 				=> clk_sdram, 		 -- 84 MHz for loader_ctl and vga_master
-	clk_low 			=> clk_loader,			 -- 3.5 MHz for mem write 
+	clk 				=> clk_28, 		 -- for loader_ctl and vga_master
+	clk_low 			=> clk_14,		 -- for mem write 
 	reset 				=> areset or not locked, -- global reset
 
 	-- physical connections to SD card
@@ -448,6 +467,17 @@ port map (
 	busy 					=> loader_busy
 );
 
+--U_LOADER_RESET : entity work.oneshot
+--generic map (
+--	SIZE => 42
+--)
+--port map(
+--	CLK => clk_loader,
+--	RESET => areset or not locked,
+--	oneshot_in => loader_host_reset,
+--	oneshot_out => loader_host_reset_oneshot
+--);
+
 --U16: entity work.uart
 --generic map (
 --        -- divisor = 28MHz / 115200 Baud = 243
@@ -468,17 +498,20 @@ port map (
 UART_TXD <= 'Z';
 UART_RXD <= 'Z';
 
+
+
 -------------------------------------------------------------
 areset <= not KEYS(3);					-- global reset
-reset <= areset or loader_host_reset or not locked;			-- hot reset
-cpu_reset_n <= not(reset); -- and not(kb_f_bus(4));	-- CPU reset
+reset <= areset or loader_busy or loader_host_reset or not locked;			-- hot reset
+cpu_reset_n <= not(reset) and KEYS(2); -- and not(kb_f_bus(4));	-- CPU reset
 
 -- TODO: start reset here
 
 -------------------------------------------------------------
 rom_cs 	<= '1' when (cpu_a_bus(15 downto 14) = "00" and cpu_mreq_n = '0' and cpu_rd_n = '0') else '0';
 vram_cs <= '1' when (cpu_a_bus(15 downto 14) = "01" and cpu_mreq_n = '0') else '0';
-ram_cs 	<= '1' when (cpu_a_bus(15) = '1' 			and cpu_mreq_n = '0') else '0'; -- and (cpu_rd_n = '0' or cpu_wr_n = '0')) else '0';
+ram_cs 	<= '1' when (cpu_a_bus(15) = '1' 			and cpu_mreq_n = '0') else '0'; 
+--ram_cs 	<= '1' when (cpu_a_bus(15) = '1' 			and cpu_mreq_n = '0' and (cpu_rd_n = '0' or cpu_wr_n = '0')) else '0';
 ula_cs 	<= '1' when (cpu_a_bus(0) = '0' and cpu_iorq_n = '0' and cpu_m1_n = '1') else '0';
 
 -- ports
@@ -489,6 +522,8 @@ ulaplusaddr_cs <= '1' when cpu_iorq_n='0' and cpu_m1_n = '1' and cpu_a_bus(0) = 
 
 ulaplusdata_cs <= '1' when cpu_iorq_n='0' and cpu_m1_n = '1' and cpu_a_bus(0) = '1' and cpu_a_bus(2) = '0' 
 						and cpu_a_bus(7 downto 6) = "00" and cpu_a_bus(15 downto 14) = "11" else '0'; -- port FF3Bh
+
+ay_cs   	   <= '1' when cpu_a_bus(15) = '1' and cpu_a_bus(13) = '1' and cpu_a_bus(1) = '0' and cpu_m1_n = '1' and cpu_iorq_n = '0' else '0';
 
 ula_di_bus <= cpu_do_bus;
 rom_a_bus <= cpu_a_bus(13 downto 0);
@@ -502,6 +537,8 @@ begin
 		cpu_di_bus <= ula_do_bus;
 	elsif (ram_cs = '1') then
 		cpu_di_bus <= sdr_do_bus;
+	elsif (ay_cs = '1') then
+		cpu_di_bus <= ay_do_bus;
 	else 
 		cpu_di_bus <= "11111111";
 	end if;

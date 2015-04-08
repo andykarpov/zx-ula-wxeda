@@ -18,7 +18,7 @@ end PS2Controller;
 
 architecture Behavioral of PS2Controller is
 
-	constant ClockFreq     : natural := 64; -- MHz
+	constant ClockFreq     : natural := 14; -- MHz
 	constant Time100us     : natural := 100 * ClockFreq;
 	constant Time20us      : natural := 20 * ClockFreq;
 	constant DebounceDelay : natural := 16;

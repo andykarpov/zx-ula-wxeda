@@ -5,16 +5,22 @@ library ieee;
 
 entity audio is
 port (
-		clk: in std_logic;
 		clk_dac: in std_logic;
 		clk_adc : in std_logic; 
 		clk_ula : in std_logic;
+		clk_psg : in std_logic;
 		reset: in std_logic;
         enable: in std_logic := '0';
 
 		ula_spk : in std_logic;
 		ula_mic : in std_logic;
 		ula_ear : out std_logic;
+
+		AY_BDIR : in std_logic;
+		AY_CS : in std_logic;
+		AY_BC : in std_logic;
+		AY_DI : in std_logic_vector(7 downto 0);
+		AY_DO : out std_logic_vector(7 downto 0);
 
 		ADC_DAT : in std_logic;
 		ADC_CLK : out std_logic;
@@ -35,6 +41,10 @@ signal line8in		: std_logic_vector(7 downto 0);
 signal tapein		: std_logic;
 signal ad_clk_out 	: std_logic;
 
+signal ay_out_a 		: std_logic_vector(7 downto 0);
+signal ay_out_b 		: std_logic_vector(7 downto 0);
+signal ay_out_c 		: std_logic_vector(7 downto 0);
+
 signal audio_l		: std_logic_vector(15 downto 0);
 signal audio_r		: std_logic_vector(15 downto 0);
 signal audio_b		: std_logic_vector(15 downto 0);
@@ -44,6 +54,20 @@ signal dac_s_r		: std_logic_vector(15 downto 0);
 signal dac_s_b		: std_logic_vector(15 downto 0);
 
 begin
+
+u_AY8910 : entity work.ay8910
+port map(
+   CLK            => clk_adc,
+   ENA            => clk_psg,
+   RESET          => reset,
+   BDIR           => AY_BDIR,
+   CS             => AY_CS,
+   BC             => AY_BC,
+   DI             => AY_DI,
+   DO             => AY_DO,
+   OUT_A          => ay_out_a,
+   OUT_B          => ay_out_b,
+   OUT_C          => ay_out_c);
 
 -- Delta-Sigma L
 U8: entity work.dac
@@ -62,6 +86,9 @@ port map (
     DAC_OUT   	=> out_r);
 
 ADC : entity work.tlc549 
+generic map (
+	frequency => 28
+)
 port map (
 	clk => clk_adc,
     reset => reset,
@@ -75,19 +102,22 @@ port map (
 -- Audio
 audio_l <= 	  ("0000" & ula_spk & "00000000000") + 
 				  ("0000" & ula_mic & "00000000000") + 
-				   ("000000" & tapein  & "000000000");
-				  --("0000" & line8in & "0000") when enable = '1' else "0000000000000000";
+				   ("000000" & tapein  & "000000000") + 
+				   ("0000" & ay_out_a & "0000") +
+				   ("00000" & ay_out_b & "000");
 
 audio_r <=    ("0000" & ula_spk & "00000000000") + 
 				  ("0000" & ula_mic & "00000000000") + 
-				  ("000000" & tapein  & "000000000");
- 				  --("0000" & line8in & "0000") when enable = '1' else "0000000000000000";
+				  ("000000" & tapein  & "000000000") +
+				   ("0000" & ay_out_c & "0000") +
+				   ("00000" & ay_out_b & "000");
 
 ula_ear <= tapein when enable = '1' else '0';
 out_buzzer <= '1';
 line8in <= linein(7 downto 0) when enable = '1' else "00000000";
 out_dac <= linein;
 
+-- adc to tapein conversion
 process (clk_ula, tapein, line8in)
 variable HYST: integer := 4;
 variable LEVEL: integer := 128;

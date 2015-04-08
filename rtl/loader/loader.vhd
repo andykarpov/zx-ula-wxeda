@@ -6,9 +6,9 @@ USE ieee.std_logic_arith.all;
 entity loader is
 	generic(
 		mem_a_offset : integer := 0; -- physical mem write address offset
-		loader_filesize : integer := 81920; -- loader rom filesize
+		loader_filesize : integer := 32768; -- loader rom filesize
 		use_osd : boolean := true; -- show osd
-		clk_frequency : integer := 840 -- loader clk frequency * 10
+		clk_frequency : integer := 280 -- loader clk frequency * 10
 	);
 	port
 	(
@@ -87,6 +87,7 @@ signal loader_vga_vs : std_logic;
 signal loader_vga_r : std_logic_vector(7 downto 0);
 signal loader_vga_g : std_logic_vector(7 downto 0);
 signal loader_vga_b : std_logic_vector(7 downto 0);
+signal end_of_frame : std_logic;
 
 signal loader_boot_ack : std_logic := '0';
 signal loader_boot_req : std_logic := '1';
@@ -178,6 +179,8 @@ UL00: entity work.loader_vga_master
 		hSync => loader_vga_hs,
 		vSync => loader_vga_vs,
 
+		endOfFrame => end_of_frame,
+
 		-- Setup 640x480@60hz needs ~25 Mhz
 		xSize => TO_UNSIGNED(800,12),
 		ySize => TO_UNSIGNED(525,12),
@@ -192,9 +195,9 @@ UL01 : entity work.loader_osd_overlay
 port map
 (
 	clk => clk,
-	red_in => "00000000",
-	green_in => "00000000",
-	blue_in => "00000000",
+	red_in => "11111111",
+	green_in => "11111111",
+	blue_in => "11111111",
 	window_in => '1',
 	osd_window_in => loader_window,
 	osd_pixel_in => loader_pixel,
@@ -203,13 +206,15 @@ port map
 	green_out => loader_vga_g,
 	blue_out => loader_vga_b,
 	window_out => open,
-	scanline_ena => '0'
+	scanline_ena => '1'
 );
 
 -- Loader ctl 
 UL02: entity work.loader_ctrl
 	generic map (
-		sysclk_frequency => clk_frequency
+		sysclk_frequency => clk_frequency,
+		vsync_polarity => '0',
+		detect_vblank => '0'
 	)
 	port map(
 		clk => clk,
@@ -234,6 +239,7 @@ UL02: entity work.loader_ctrl
 		vga_vsync => loader_vga_vs,
 		osd_window => loader_window,
 		osd_pixel => loader_pixel,
+		vga_vblank => end_of_frame,
 
 		-- boot data
 		host_bootdata 	  => loader_boot_data,
@@ -252,7 +258,7 @@ UL02: entity work.loader_ctrl
 
 
 -- mem write
-process (reset, clk_low)
+process (reset, clk_low, loader_address, loader_boot_ack)
 begin
 	if reset = '1' then		
 
