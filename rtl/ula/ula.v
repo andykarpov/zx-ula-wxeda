@@ -373,7 +373,9 @@ module ula(
 	assign clkcpu = CPUClk;
 	reg ioreqtw3 = 0;
 	reg mreqt23 = 0;
-	wire ioreq_n = (a[0] | iorq_n) & ~dataportsel & ~addrportsel;
+// modifications from the Harlequine project
+//	wire ioreq_n = (a[0] | iorq_n) & ~dataportsel & ~addrportsel;
+	wire ioreq_n = a[0] | iorq_n;
 	wire Nor1 = (~(a[14] | ~ioreq_n)) | 
 	            (~(~a[15] | ~ioreq_n)) | 
 					(~(hc[2] | hc[3])) | 
