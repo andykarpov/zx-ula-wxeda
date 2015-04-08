@@ -59,11 +59,11 @@ entity scan_convert is
 		vpad			: integer range 0 to 1023 :=   0		-- V black border
 	);
 	port (
-		I_VIDEO				: in  std_logic_vector(5 downto 0);
+		I_VIDEO				: in  std_logic_vector(8 downto 0);
 		I_HSYNC				: in  std_logic;
 		I_VSYNC				: in  std_logic;
 		--
-		O_VIDEO				: out std_logic_vector(5 downto 0);
+		O_VIDEO				: out std_logic_vector(8 downto 0);
 		O_HSYNC				: out std_logic;
 		O_VSYNC				: out std_logic;
 		O_CMPBLK_N			: out std_logic;
@@ -102,7 +102,7 @@ begin
 		--
 		clock_b	 	=> CLK_x2,
 		address_b	=> hpos_o,
-		data_b	 	=> "000000",
+		data_b	 	=> "000000000",
 		wren_b	 	=> '0',
 		q_b	 		=> O_VIDEO
 	);

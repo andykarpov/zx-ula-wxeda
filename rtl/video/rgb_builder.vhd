@@ -49,7 +49,7 @@ begin
 	end if;
 end process;
 
-process (clk, ig, mode)
+process (clk, ig, mode, rgbulaplus)
 begin 
 	if mode = '0' then
 		case (ig) is
@@ -63,7 +63,7 @@ begin
 	end if;
 end process;
 
-process (clk, ib, mode)
+process (clk, ib, mode, rgbulaplus)
 begin 
 	if mode = '0' then
 		case (ib) is

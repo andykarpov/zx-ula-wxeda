@@ -46,20 +46,20 @@ ENTITY ram_scan IS
 		address_b		: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
 		clock_a		: IN STD_LOGIC  := '1';
 		clock_b		: IN STD_LOGIC ;
-		data_a		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-		data_b		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+		data_a		: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
+		data_b		: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
 		wren_a		: IN STD_LOGIC  := '0';
 		wren_b		: IN STD_LOGIC  := '0';
-		q_a		: OUT STD_LOGIC_VECTOR (5 DOWNTO 0);
-		q_b		: OUT STD_LOGIC_VECTOR (5 DOWNTO 0)
+		q_a		: OUT STD_LOGIC_VECTOR (8 DOWNTO 0);
+		q_b		: OUT STD_LOGIC_VECTOR (8 DOWNTO 0)
 	);
 END ram_scan;
 
 
 ARCHITECTURE SYN OF ram_scan IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (5 DOWNTO 0);
-	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (5 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (8 DOWNTO 0);
+	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (8 DOWNTO 0);
 
 
 
@@ -96,18 +96,18 @@ ARCHITECTURE SYN OF ram_scan IS
 			wren_a	: IN STD_LOGIC ;
 			address_b	: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
 			clock1	: IN STD_LOGIC ;
-			data_b	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-			q_a	: OUT STD_LOGIC_VECTOR (5 DOWNTO 0);
+			data_b	: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
+			q_a	: OUT STD_LOGIC_VECTOR (8 DOWNTO 0);
 			wren_b	: IN STD_LOGIC ;
 			address_a	: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
-			data_a	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-			q_b	: OUT STD_LOGIC_VECTOR (5 DOWNTO 0)
+			data_a	: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
+			q_b	: OUT STD_LOGIC_VECTOR (8 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	q_a    <= sub_wire0(5 DOWNTO 0);
-	q_b    <= sub_wire1(5 DOWNTO 0);
+	q_a    <= sub_wire0(8 DOWNTO 0);
+	q_b    <= sub_wire1(8 DOWNTO 0);
 
 	altsyncram_component : altsyncram
 	GENERIC MAP (
@@ -131,8 +131,8 @@ BEGIN
 		read_during_write_mode_port_b => "NEW_DATA_NO_NBE_READ",
 		widthad_a => 10,
 		widthad_b => 10,
-		width_a => 6,
-		width_b => 6,
+		width_a => 9,
+		width_b => 9,
 		width_byteena_a => 1,
 		width_byteena_b => 1,
 		wrcontrol_wraddress_reg_b => "CLOCK1"
@@ -163,7 +163,7 @@ END SYN;
 -- Retrieval info: PRIVATE: BYTEENA_ACLR_B NUMERIC "0"
 -- Retrieval info: PRIVATE: BYTE_ENABLE_A NUMERIC "0"
 -- Retrieval info: PRIVATE: BYTE_ENABLE_B NUMERIC "0"
--- Retrieval info: PRIVATE: BYTE_SIZE NUMERIC "8"
+-- Retrieval info: PRIVATE: BYTE_SIZE NUMERIC "9"
 -- Retrieval info: PRIVATE: BlankMemory NUMERIC "1"
 -- Retrieval info: PRIVATE: CLOCK_ENABLE_INPUT_A NUMERIC "0"
 -- Retrieval info: PRIVATE: CLOCK_ENABLE_INPUT_B NUMERIC "0"
@@ -187,7 +187,7 @@ END SYN;
 -- Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 -- Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 -- Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
--- Retrieval info: PRIVATE: MEMSIZE NUMERIC "6144"
+-- Retrieval info: PRIVATE: MEMSIZE NUMERIC "9216"
 -- Retrieval info: PRIVATE: MEM_IN_BITS NUMERIC "0"
 -- Retrieval info: PRIVATE: MIFfilename STRING ""
 -- Retrieval info: PRIVATE: OPERATION_MODE NUMERIC "3"
@@ -207,10 +207,10 @@ END SYN;
 -- Retrieval info: PRIVATE: USE_DIFF_CLKEN NUMERIC "0"
 -- Retrieval info: PRIVATE: UseDPRAM NUMERIC "1"
 -- Retrieval info: PRIVATE: VarWidth NUMERIC "0"
--- Retrieval info: PRIVATE: WIDTH_READ_A NUMERIC "6"
--- Retrieval info: PRIVATE: WIDTH_READ_B NUMERIC "6"
--- Retrieval info: PRIVATE: WIDTH_WRITE_A NUMERIC "6"
--- Retrieval info: PRIVATE: WIDTH_WRITE_B NUMERIC "6"
+-- Retrieval info: PRIVATE: WIDTH_READ_A NUMERIC "9"
+-- Retrieval info: PRIVATE: WIDTH_READ_B NUMERIC "9"
+-- Retrieval info: PRIVATE: WIDTH_WRITE_A NUMERIC "9"
+-- Retrieval info: PRIVATE: WIDTH_WRITE_B NUMERIC "9"
 -- Retrieval info: PRIVATE: WRADDR_ACLR_B NUMERIC "0"
 -- Retrieval info: PRIVATE: WRADDR_REG_B NUMERIC "1"
 -- Retrieval info: PRIVATE: WRCTRL_ACLR_B NUMERIC "0"
@@ -237,8 +237,8 @@ END SYN;
 -- Retrieval info: CONSTANT: READ_DURING_WRITE_MODE_PORT_B STRING "NEW_DATA_NO_NBE_READ"
 -- Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "10"
 -- Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "10"
--- Retrieval info: CONSTANT: WIDTH_A NUMERIC "6"
--- Retrieval info: CONSTANT: WIDTH_B NUMERIC "6"
+-- Retrieval info: CONSTANT: WIDTH_A NUMERIC "9"
+-- Retrieval info: CONSTANT: WIDTH_B NUMERIC "9"
 -- Retrieval info: CONSTANT: WIDTH_BYTEENA_A NUMERIC "1"
 -- Retrieval info: CONSTANT: WIDTH_BYTEENA_B NUMERIC "1"
 -- Retrieval info: CONSTANT: WRCONTROL_WRADDRESS_REG_B STRING "CLOCK1"
@@ -246,22 +246,22 @@ END SYN;
 -- Retrieval info: USED_PORT: address_b 0 0 10 0 INPUT NODEFVAL "address_b[9..0]"
 -- Retrieval info: USED_PORT: clock_a 0 0 0 0 INPUT VCC "clock_a"
 -- Retrieval info: USED_PORT: clock_b 0 0 0 0 INPUT NODEFVAL "clock_b"
--- Retrieval info: USED_PORT: data_a 0 0 6 0 INPUT NODEFVAL "data_a[5..0]"
--- Retrieval info: USED_PORT: data_b 0 0 6 0 INPUT NODEFVAL "data_b[5..0]"
--- Retrieval info: USED_PORT: q_a 0 0 6 0 OUTPUT NODEFVAL "q_a[5..0]"
--- Retrieval info: USED_PORT: q_b 0 0 6 0 OUTPUT NODEFVAL "q_b[5..0]"
+-- Retrieval info: USED_PORT: data_a 0 0 9 0 INPUT NODEFVAL "data_a[8..0]"
+-- Retrieval info: USED_PORT: data_b 0 0 9 0 INPUT NODEFVAL "data_b[8..0]"
+-- Retrieval info: USED_PORT: q_a 0 0 9 0 OUTPUT NODEFVAL "q_a[8..0]"
+-- Retrieval info: USED_PORT: q_b 0 0 9 0 OUTPUT NODEFVAL "q_b[8..0]"
 -- Retrieval info: USED_PORT: wren_a 0 0 0 0 INPUT GND "wren_a"
 -- Retrieval info: USED_PORT: wren_b 0 0 0 0 INPUT GND "wren_b"
 -- Retrieval info: CONNECT: @address_a 0 0 10 0 address_a 0 0 10 0
 -- Retrieval info: CONNECT: @address_b 0 0 10 0 address_b 0 0 10 0
 -- Retrieval info: CONNECT: @clock0 0 0 0 0 clock_a 0 0 0 0
 -- Retrieval info: CONNECT: @clock1 0 0 0 0 clock_b 0 0 0 0
--- Retrieval info: CONNECT: @data_a 0 0 6 0 data_a 0 0 6 0
--- Retrieval info: CONNECT: @data_b 0 0 6 0 data_b 0 0 6 0
+-- Retrieval info: CONNECT: @data_a 0 0 9 0 data_a 0 0 9 0
+-- Retrieval info: CONNECT: @data_b 0 0 9 0 data_b 0 0 9 0
 -- Retrieval info: CONNECT: @wren_a 0 0 0 0 wren_a 0 0 0 0
 -- Retrieval info: CONNECT: @wren_b 0 0 0 0 wren_b 0 0 0 0
--- Retrieval info: CONNECT: q_a 0 0 6 0 @q_a 0 0 6 0
--- Retrieval info: CONNECT: q_b 0 0 6 0 @q_b 0 0 6 0
+-- Retrieval info: CONNECT: q_a 0 0 9 0 @q_a 0 0 9 0
+-- Retrieval info: CONNECT: q_b 0 0 9 0 @q_b 0 0 9 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL ram_scan.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL ram_scan.inc FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL ram_scan.cmp FALSE

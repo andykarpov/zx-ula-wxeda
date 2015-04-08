@@ -99,6 +99,7 @@ signal cpu_rfsh_n	:	std_logic;
 signal cpu_a_bus	:	std_logic_vector(15 downto 0);
 signal cpu_di_bus	:	std_logic_vector(7 downto 0);
 signal cpu_do_bus	:	std_logic_vector(7 downto 0);
+signal cpu_d_bus    :   std_logic_vector(7 downto 0);
 
 -- Video RAM
 signal video_ram_a	:	std_logic_vector(13 downto 0);
@@ -139,6 +140,10 @@ signal ula_mic		: 	std_logic;
 signal ula_spk		:	std_logic;
 signal ula_di_bus 	:  std_logic_vector(7 downto 0);
 signal ula_do_bus 	:  std_logic_vector(7 downto 0);
+signal ulaplus_rgb  :   std_logic_vector(7 downto 0);
+signal ulaplus_enabled : std_logic;
+signal ulaplusaddr_cs : std_logic;
+signal ulaplusdata_cs : std_logic;
 
 -- debug DAC out
 signal out_dac 		: std_logic_vector(7 downto 0);
@@ -206,11 +211,7 @@ U0: entity work.clock
 	);
 
 -- Zilog Z80A CPU
-U1: entity work.T80s
-	generic map (
-		Mode		=> 0,	-- 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
-		T2Write		=> 1,	-- 0 => WR_n active in T3, 1 => WR_n active in T2
-		IOWait		=> 1)	-- 0 => Single cycle I/O, 1 => Std I/O cycle
+U1: entity work.T80a
 	port map(
 		RESET_n		=> cpu_reset_n,
 		CLK_n		=> cpu_clk,
@@ -227,13 +228,15 @@ U1: entity work.T80s
 		HALT_n		=> open,
 		BUSAK_n		=> open,
 		A			=> cpu_a_bus,
-		DI			=> cpu_di_bus,
-		DO			=> cpu_do_bus,
-		SavePC      => open,
-		SaveINT     => open,
-		RestorePC   => (others => '1'),
-		RestoreINT  => (others => '1'),
-		RestorePC_n => '1'
+        D           => cpu_d_bus
+--		DI			=> cpu_di_bus,
+--		DO			=> cpu_do_bus,
+
+		--SavePC      => open,
+		--SaveINT     => open,
+		--RestorePC   => (others => '1'),
+		--RestoreINT  => (others => '1'),
+		--RestorePC_n => '1'
 	);
 
 -- ULA
@@ -242,6 +245,7 @@ U2:	entity	work.ula_top
 		
 		--mode =>	ula_mode,
 		clk14 => 	clk_ula,
+		reset => 	reset,
 	    a => 		cpu_a_bus,
 	    din => 		ula_di_bus,
 		dout => 	ula_do_bus,
@@ -273,7 +277,10 @@ U2:	entity	work.ula_top
 	    i => 	ula_i,
 	    csync => ula_csync,
 	    hsync => ula_hsync,
-	    vsync => ula_vsync
+	    vsync => ula_vsync,
+
+	    rgbulaplus => ulaplus_rgb,
+	    ulaplus_enabled => ulaplus_enabled
 	);
 
 -- Memory controller
@@ -349,6 +356,9 @@ U5: entity work.video
 		ula_c => ula_csync,
 		ula_hs => ula_hsync,
 		ula_vs => ula_vsync,
+
+		ulaplus_rgb => ulaplus_rgb,
+		ulaplus_enabled => ulaplus_enabled,
 
 		vga_r => host_vga_r,
 		vga_g => host_vga_g,
@@ -438,46 +448,57 @@ port map (
 	busy 					=> loader_busy
 );
 
-U16: entity work.uart
-generic map (
-        -- divisor = 28MHz / 115200 Baud = 243
-        divisor         => 243)
-port map (
-        CLK                     => clk_mem,
-        RESET           		=> reset,
-        WR                      => uart_wr,
-        RD                      => uart_rd,
-        DI                      => uart_di_bus,
-        DO                      => uart_do_bus,
-        TXBUSY          		=> uart_tx_busy,
-        RXAVAIL         		=> uart_rx_avail,
-        RXERROR         		=> uart_rx_error,
-        RXD                     => UART_TXD,
-        TXD                     => UART_RXD
-    );
-
+--U16: entity work.uart
+--generic map (
+--        -- divisor = 28MHz / 115200 Baud = 243
+--        divisor         => 243)
+--port map (
+--        CLK                     => clk_mem,
+--        RESET           		=> reset,
+--        WR                      => uart_wr,
+--        RD                      => uart_rd,
+--        DI                      => uart_di_bus,
+--        DO                      => uart_do_bus,
+--        TXBUSY          		=> uart_tx_busy,
+--        RXAVAIL         		=> uart_rx_avail,
+--        RXERROR         		=> uart_rx_error,
+--        RXD                     => UART_TXD,
+--        TXD                     => UART_RXD
+--    );
+UART_TXD <= 'Z';
+UART_RXD <= 'Z';
 
 -------------------------------------------------------------
 areset <= not KEYS(3);					-- global reset
 reset <= areset or loader_host_reset or not locked;			-- hot reset
 cpu_reset_n <= not(reset); -- and not(kb_f_bus(4));	-- CPU reset
-ula_mode <= '0';
+
+-- TODO: start reset here
 
 -------------------------------------------------------------
 rom_cs 	<= '1' when (cpu_a_bus(15 downto 14) = "00" and cpu_mreq_n = '0' and cpu_rd_n = '0') else '0';
 vram_cs <= '1' when (cpu_a_bus(15 downto 14) = "01" and cpu_mreq_n = '0') else '0';
-ram_cs 	<= '1' when (cpu_a_bus(15) = '1' 			and cpu_mreq_n = '0' and (cpu_rd_n = '0' or cpu_wr_n = '0')) else '0';
-ula_cs 	<= '1' when (cpu_a_bus(0) = '0' and cpu_iorq_n = '0') else '0';
-port255_cs <= '1' when (cpu_iorq_n = '0' and cpu_a_bus(7 downto 0) = "11111111" and cpu_rd_n = '0') else '0';
+ram_cs 	<= '1' when (cpu_a_bus(15) = '1' 			and cpu_mreq_n = '0') else '0'; -- and (cpu_rd_n = '0' or cpu_wr_n = '0')) else '0';
+ula_cs 	<= '1' when (cpu_a_bus(0) = '0' and cpu_iorq_n = '0' and cpu_m1_n = '1') else '0';
+
+-- ports
+port255_cs <= '1' when (cpu_iorq_n = '0' and cpu_m1_n = '1' and cpu_a_bus(7 downto 0) = "11111111" and cpu_rd_n = '0') else '0'; -- port FF
+
+ulaplusaddr_cs <= '1' when cpu_iorq_n='0' and cpu_m1_n = '1' and cpu_a_bus(0) = '1' and cpu_a_bus(2) = '0' 
+						and cpu_a_bus(7 downto 6) = "00" and cpu_a_bus(15 downto 14) = "10" else '0'; -- port BF3Bh
+
+ulaplusdata_cs <= '1' when cpu_iorq_n='0' and cpu_m1_n = '1' and cpu_a_bus(0) = '1' and cpu_a_bus(2) = '0' 
+						and cpu_a_bus(7 downto 6) = "00" and cpu_a_bus(15 downto 14) = "11" else '0'; -- port FF3Bh
 
 ula_di_bus <= cpu_do_bus;
 rom_a_bus <= cpu_a_bus(13 downto 0);
 
-process (rom_cs, ula_cs, vram_cs, port255_cs, ram_cs, rom_do_bus, ula_do_bus, sdr_do_bus)
+-- CPU data bus input switch
+process (rom_cs, ula_cs, vram_cs, port255_cs, ram_cs, rom_do_bus, ula_do_bus, sdr_do_bus, ulaplusaddr_cs, ulaplusdata_cs)
 begin
 	if (rom_cs = '1') then 
 		cpu_di_bus <= rom_do_bus;
-	elsif (ula_cs = '1' or vram_cs = '1' or port255_cs = '1') then
+	elsif (ula_cs = '1' or vram_cs = '1' or port255_cs = '1' or ulaplusaddr_cs = '1' or ulaplusdata_cs = '1') then
 		cpu_di_bus <= ula_do_bus;
 	elsif (ram_cs = '1') then
 		cpu_di_bus <= sdr_do_bus;
@@ -486,6 +507,10 @@ begin
 	end if;
 end process;
 
+cpu_d_bus <= cpu_di_bus when cpu_rd_n = '0' and cpu_wr_n = '1' else "ZZZZZZZZ";
+cpu_do_bus <= cpu_d_bus when cpu_rd_n = '1' and cpu_wr_n = '0' else "ZZZZZZZZ";
+
+-- UART
 uart_wr <= '1';
 uart_rd <= '0';
 uart_di_bus <= out_dac;
@@ -498,7 +523,7 @@ host_mem_wr <= '1' when ram_cs='1' and cpu_wr_n='0' else '0';
 host_mem_rfsh <= not cpu_rfsh_n;
 host_mem_cs <= ram_cs;
 
--- Global levels
+-- Global SDRAM signals
 SDRAM_CKE <= '1'; -- pullup
 SDRAM_CS_N <= '0'; -- pulldown
 

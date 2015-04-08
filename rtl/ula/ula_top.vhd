@@ -8,6 +8,7 @@ entity ula_top is
     
     -- 14 MHz master clock
     clk14 : in std_logic;
+    reset : in std_logic; -- to reset the ULA to normal color mode.
 	 
 	 -- CPU interfacing
     a : in std_logic_vector(15 downto 0); -- Address bus from CPU (not all lines are used)
@@ -43,7 +44,9 @@ entity ula_top is
     i : out std_logic; -- Bright TTL signal
     csync : out std_logic; -- composite sync
     hsync : out std_logic; -- composite sync
-    vsync : out std_logic -- composite sync
+    vsync : out std_logic; -- composite sync
+    rgbulaplus : out std_logic_vector(7 downto 0); -- 8-bit RGB value for current pixel, ULA+
+    ulaplus_enabled : out std_logic  -- =1 if ULAPlus enabled. To help selecting the right outputs to the RGB DAC
 );
 end ula_top;
 
@@ -54,6 +57,7 @@ component ula is
     
     -- 14 MHz master clock
     clk14 : in std_logic;
+    reset : in std_logic; -- to reset the ULA to normal color mode.
 	 
 	 -- CPU interfacing
     a : in std_logic_vector(15 downto 0); -- Address bus from CPU (not all lines are used)
@@ -89,15 +93,19 @@ component ula is
     i : out std_logic; -- Bright TTL signal
     csync : out std_logic; -- composite sync
     hsync : out std_logic; -- composite sync
-    vsync : out std_logic -- composite sync
+    vsync : out std_logic; -- composite sync
+    rgbulaplus : out std_logic_vector(7 downto 0); -- 8-bit RGB value for current pixel, ULA+
+    ulaplus_enabled : out std_logic  -- =1 if ULAPlus enabled. To help selecting the right outputs to the RGB DAC
+
 );
 end component;
 
 begin
 
-ins_ula_cmp: ula 
+ins_ula: ula 
 port map (
 	clk14 => clk14,
+    reset => reset,
     a => a,
     din => din,
 	dout => dout,
@@ -125,7 +133,9 @@ port map (
     i => i,
     csync => csync,
     hsync => hsync,
-    vsync => vsync
+    vsync => vsync,
+    rgbulaplus => rgbulaplus,
+    ulaplus_enabled => ulaplus_enabled
 );
 
 end rtl;
